@@ -83,9 +83,9 @@ void move_particles(particle_array_t p, const f32 dt, u64 n) {
       d_3_over_2 = d_3_over_2 * d_3_over_2 * d_3_over_2; //13
 
       //Net force
-      fx += dx / d_3_over_2;//13
-      fy += dy / d_3_over_2;//15
-      fz += dz / d_3_over_2;//17
+      fx += dx * d_3_over_2;//13
+      fy += dy * d_3_over_2;//15
+      fz += dz * d_3_over_2;//17
     }
 
     //

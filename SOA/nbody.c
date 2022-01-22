@@ -100,6 +100,7 @@ void move_particles(particle_array_t p, const f32 dt, u64 n) {
   }
 }
 
+
 //
 int main(int argc, char **argv) {
   //
@@ -108,18 +109,16 @@ int main(int argc, char **argv) {
   const f32 dt = 0.01;
 
   //
-  f64 rate = 0.0, drate = 0.0;
+  f64 time = 0;
 
   //Steps to skip for warm up
   const u64 warmup = 3;
 
   //
-  particle_array_t p;
-
-  //
+  particle_array_t p = {0};
   init(&p, n);
 
-  const u64 s = sizeof(f32) * (n * 6);
+  const u64 s = sizeof(particle_t) * n;
 
   printf("\n\033[1mTotal memory size:\033[0m %llu B, %llu KiB, %llu MiB\n\n", s, s >> 10, s >> 20);
 
@@ -136,35 +135,22 @@ int main(int argc, char **argv) {
 
     const f64 end = omp_get_wtime();
 
-    //Number of interactions/iterations
-    const f32 h1 = (f32) (n) * (f32) (n - 1);
-
-    //GFLOPS
-    const f32 h2 = (23.0 * h1 + 3 * (f32) n) * 1e-9;
-
-    if (i >= warmup) {
-      rate += h2 / (end - start);
-      drate += (h2 * h2) / ((end - start) * (end - start));
-    }
-
-    //
-    printf("%5llu %10.3e %10.3e %8.1f %s\n",
+    printf("%5llu %.8e %s\n",
            i,
            (end - start),
-           h1 / (end - start),
-           h2 / (end - start),
            (i < warmup) ? "*" : "");
-
     fflush(stdout);
+
+    if (i >= warmup) {
+      time += (end - start);
+    }
   }
 
-  //
-  rate /= (f64) (steps - warmup);
-  drate = sqrt(drate / (f64) (steps - warmup) - (rate * rate));
+  time /= (steps - warmup);
 
   printf("-----------------------------------------------------\n");
-  printf("\033[1m%s %4s \033[42m%10.1lf +- %.1lf GFLOP/s\033[0m\n",
-         "Average performance:", "", rate, drate);
+  printf("\033[1m%s %4s \033[42m%.8lf s\033[0m\n",
+         "Average time:", "", time);
   printf("-----------------------------------------------------\n");
 
   //
